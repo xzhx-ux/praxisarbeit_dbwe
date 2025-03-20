@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Chat{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <h2 class="mb-4">Chat mit {{ friend.username }}</h2>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mb-3">Zurück zum Dashboard</a>
+    <div id="chat-box" class="border p-3 mb-3" style="height:300px; overflow-y:scroll;">
+      {% for chat in chats %}
+        <div>
+          <strong>{% if chat.sender_id == current_user_id %}Du{% else %}{{ friend.username }}{% endif %}:</strong>
+          {{ chat.message }} <small class="text-muted">({{ chat.timestamp }})</small>
+        </div>
+      {% endfor %}
+    </div>
+    <form id="chat-form">
+      <div class="input-group">
+        <input type="text" id="message" class="form-control" placeholder="Deine Nachricht" required>
+        <button type="submit" class="btn btn-primary">Senden</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+<script>
+    var socket = io();
+    var room = "chat_" + Math.min({{ current_user_id }}, {{ friend.id }}) + "_" + Math.max({{ current_user_id }}, {{ friend.id }});
+    socket.emit('join', {'room': room, 'username': "{{ session.get('username', 'Du') }}"});
+    document.getElementById('chat-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        var msg = document.getElementById('message').value;
+        socket.emit('send_message', {
+            'room': room,
+            'username': "{{ session.get('username', 'Du') }}",
+            'sender_id': {{ current_user_id }},
+            'receiver_id': {{ friend.id }},
+            'message': msg
+        });
+        document.getElementById('message').value = '';
+    });
+    socket.on('receive_message', function(data){
+        var chatBox = document.getElementById('chat-box');
+        var div = document.createElement('div');
+        div.innerHTML = "<strong>" + data.username + ":</strong> " + data.message + " <small class='text-muted'>(" + data.timestamp + ")</small>";
+        chatBox.appendChild(div);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+</script>
+{% endblock %}

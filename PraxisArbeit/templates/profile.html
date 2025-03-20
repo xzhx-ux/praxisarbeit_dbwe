@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Profil bearbeiten{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2 class="mb-4">Profil bearbeiten</h2>
+    <form method="POST">
+      <div class="mb-3">
+        <label class="form-label">Benutzername:</label>
+        <input type="text" class="form-control" name="username" value="{{ user.username }}" required>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Name:</label>
+        <input type="text" class="form-control" name="name" value="{{ user.name or '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email:</label>
+        <input type="email" class="form-control" name="email" value="{{ user.email or '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Neues Passwort (leer lassen, wenn nicht geändert):</label>
+        <input type="password" class="form-control" name="password">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Profilbild URL:</label>
+        <input type="text" class="form-control" name="profile_pic" value="{{ user.profile_pic or '' }}">
+      </div>
+      <button type="submit" class="btn btn-primary">Speichern</button>
+    </form>
+    <hr>
+    <form method="POST" onsubmit="return confirm('Möchtest du dein Profil wirklich löschen?');">
+      <input type="hidden" name="delete" value="1">
+      <button type="submit" class="btn btn-danger">Profil löschen</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2 class="mb-4">Willkommen, {{ user.username }}</h2>
+{% if user.profile_pic %}
+  <img src="{{ user.profile_pic }}" alt="Profilbild" class="img-fluid rounded mb-3" style="max-width: 150px;">
+{% else %}
+  <p>Kein Profilbild vorhanden.</p>
+{% endif %}
+
+<div class="row">
+  <div class="col-md-8">
+    <h4>Freunde</h4>
+    {% if friends %}
+      <ul class="list-group mb-3">
+        {% for friend in friends %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('main.chat', friend_id=friend.id) }}">{{ friend.username }}</a>
+            <form method="POST" action="{{ url_for('main.remove_friend', friend_id=friend.id) }}" class="mb-0">
+              <button type="submit" class="btn btn-sm btn-danger">Entfernen</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>Keine Freunde hinzugefügt.</p>
+    {% endif %}
+  </div>
+  <div class="col-md-4">
+    <h4>Benutzer suchen</h4>
+    <form method="GET" action="{{ url_for('main.dashboard') }}">
+      <div class="input-group mb-3">
+        <input type="text" class="form-control" name="q" placeholder="Suche nach Benutzern" value="{{ search_query }}">
+        <button type="submit" class="btn btn-outline-secondary">Suchen</button>
+      </div>
+    </form>
+    {% if search_query %}
+      <ul class="list-group">
+        {% for result in search_results %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ result.username }}
+            <form method="POST" action="{{ url_for('main.add_friend', friend_id=result.id) }}" class="mb-0">
+              <button type="submit" class="btn btn-sm btn-success">Hinzufügen</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="list-group-item">Keine Ergebnisse gefunden.</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
